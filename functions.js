@@ -1,23 +1,33 @@
+$(document).ready(function(){
+        $.ajax({
+            type:"GET",
+            url:"load.php",
+            contentType:"application/json; charset=utf-8",
+            dataType:'json',
+
+                success: function(json) {
+                     const pot = [];
+                    for (var klucz in json)
+                        {
+                            var wiersz = json[klucz]; 
+                            pot.push(wiersz[0]);
+                            
+                        } 
+                        begin(pot);
+                },
+                 
+                error: function(blad) {
+                    alert( "Wystąpił błąd");
+                    console.log(blad);
+                }
+             
+        });
+});
+
 const lettersDiv = document.getElementById("letters");
 const letters = "AĄBCĆDEĘFGHIJKLŁMNŃOÓPQRSŚTUWVXYZŹŻ".split("");
 let mistakes = 0;
 let refreshedSentence = "";
-const pot = [
-    "Co się odwlecze to nie uciecze",
-    "Forrest Gump",
-    "Adam Mickiewicz",
-    "Bośnia i Harcegowina",
-    "Przeminęło z wiatrem",
-    "Czterej pancerni i pies",
-    "Mateusz Morawiecki",
-    "Bierzwnica"
-]
-
-const min = 0;
-const max = pot.length;
-let index = Math.floor(Math.random() * (max - min)) + min;                  // losowanie hasła z puli
-let sentenceToGuess = pot[index].toUpperCase();     
-
 
 String.prototype.setChar = function(position, char){                            // podmiana znaku na podanej pozycji w stringu
     if (position>this.length-1)  return this.toString();
@@ -25,9 +35,14 @@ String.prototype.setChar = function(position, char){                            
 }
 
 
-function begin (){
+function begin (pot){
+    const min = 0;
+    const max = pot.length;
+    const index = Math.floor(Math.random() * (max - min)) + min;                  // losowanie hasła z puli
+    const sentenceToGuess = pot[index].toUpperCase();     
+
     for (var i = 0; i < letters.length; i++){
-        lettersDiv.innerHTML += '<div class = "letter" onclick = "check('+i+')" id = "lett'+i+'">'+letters[i]+'</div>';
+        lettersDiv.innerHTML += `<div class = "letter" onclick = "check('${sentenceToGuess}', ${i})" id = "lett${i}">${letters[i]}</div>`;
         if ((i+1)%7==0){
             lettersDiv.innerHTML += '<div style="clear: both;"></div>';
         }
@@ -45,8 +60,8 @@ function begin (){
     refresh();
 }
 
-function check(letterDivNo){
-    let flag =  false;
+function check(sentenceToGuess, letterDivNo){
+    let flag = false;
     for (var i = 0; i < sentenceToGuess.length; i++){
         if (sentenceToGuess[i] == letters[letterDivNo]){
             refreshedSentence = refreshedSentence.setChar(i, letters[letterDivNo]);
@@ -71,7 +86,7 @@ function check(letterDivNo){
             resetButton = document.createElement('button');
             resetButton.textContent = 'Jeszcze raz?';
             document.body.appendChild(resetButton);
-            resetButton.addEventListener('click', resetGame);
+            resetButton.addEventListener('click', resetGame);   
         }
     }
     refresh();
@@ -104,12 +119,6 @@ function nextImage(mistakes){
 }
 
 function resetGame(){
-    lettersDiv.innerHTML = "";
-    refreshedSentence = "";
-    index = Math.floor(Math.random() * (max - min)) + min;
-    sentenceToGuess = pot[index].toUpperCase();
     resetButton.parentNode.removeChild(resetButton);
-    begin();
+    location.reload();
 }
-
-begin();
